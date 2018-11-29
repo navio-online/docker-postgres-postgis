@@ -90,3 +90,10 @@ RUN set -ex \
     && rm -rf /usr/src/postgis /usr/src/cgal /usr/src/sfcgal \
     && apk del .fetch-deps .build-deps .build-deps-edge
 
+ADD files/ /
+
+VOLUME /var/lib/postgresql/data
+
+EXPOSE 5432
+ENTRYPOINT ["/opt/bin/docker-entrypoint.sh"]
+CMD ["postgres"]
