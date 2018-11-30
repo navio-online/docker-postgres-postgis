@@ -45,15 +45,10 @@ RUN set -ex \
         automake \
         g++ \
         json-c-dev \
-        libtool \
-        libxml2-dev \
         make \
         perl \
         pcre-dev \
         cmake \
-        gmp-dev \
-        mpfr-dev \
-        boost-dev \
          \
     \
     && apk add --no-cache --virtual .build-deps-edge \
@@ -63,10 +58,16 @@ RUN set -ex \
         geos-dev \
         proj4-dev \
         protobuf-c-dev \
+    && apk add libtool \
+               libxml2-dev \
+               pcre-dev \
+               mpfr-dev \
+               boost-dev \
+               gmp-dev \
     && cd /usr/src/cgal \
     && cmake . && make && make install \
     && cd /usr/src/sfcgal \
-    && cmake . && make && make install \
+    && cmake -DCMAKE_INSTALL_LIBDIR=/usr/local/lib . && make && make install \
     && cd /usr/src/postgis \
     && ./autogen.sh \
 # configure options taken from:
