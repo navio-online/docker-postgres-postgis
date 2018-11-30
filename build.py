@@ -1,5 +1,6 @@
 from navio.builder import task, nsh, sh
 from navio.travis import Travis
+import os
 
 travis = Travis().is_travis()
 branch = Travis().branch()
@@ -35,3 +36,62 @@ def push():
         'alpine-postgres-postgis:latest', 
         'navioonline/alpine-postgres-postgis:{tag}'.format(Travis().tag())
       )
+
+@task()
+def check_uncommited():
+    result = sh.git('status', '--porcelain', '--untracked-files=no')
+    if result:
+        raise Exception('There are uncommited files')
+
+@task()
+def update_version(ver=None):
+    with open('navio/meta_travis.py', 'r') as f:
+        file_str = f.read()
+
+    if not ver:
+        regexp = re.compile(r'__version__\s*\=\s*\"([\d\w\.\-\_]+)\"\s*')
+        m = regexp.search(file_str)
+        if m:
+            ver = m.group(1)
+
+    minor_ver = int(ver[ver.rfind('.') + 1:])
+    ver = '{}.{}'.format(ver[:ver.rfind('.')], minor_ver + 1)
+
+    file_str = re.sub(
+        r'__version__\s*\=\s*\"([\d\w\.\-\_]+)\"\s*',
+        r'__version__ = "{}"\n'.format(ver),
+        file_str)
+
+    with open('navio/meta_travis.py', 'w') as f:
+        f.write(file_str)
+
+    nsh.git('commit', 'navio/meta_travis.py', '-m', 'Version updated to {}'.format(ver))
+
+
+@task()
+def create_tag():
+    with open('navio/meta_travis.py', 'r') as f:
+        file_str = f.read()
+    regexp = re.compile(r'__version__\s*\=\s*\"([\d\w\.\-\_]+)\"\s*')
+    m = regexp.search(file_str)
+    if m:
+        ver = m.group(1)
+    else:
+        raise "Can't find/parse current version in './navio/meta_travis.py'"
+
+    nsh.git('tag', '-a', '-m', 'Tagging version {}'.format(ver), ver)
+
+
+@task()
+def push():
+    nsh.git('push', '--verbose')
+    nsh.git('push', '--tags', '--verbose')
+
+
+@task()
+def release(ver=None):
+    check_uncommited()
+    update_version(ver)
+    create_tag()
+    generate_rst()
+    push()
