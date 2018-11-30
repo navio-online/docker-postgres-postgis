@@ -1,6 +1,12 @@
-sudo: true
+services:
+- docker
 language: python
-python: 3.7
+python: 3.6
+cache:
+  directories:
+  - "$HOME/.cache/pip"
+before_cache:
+- rm -f $HOME/.cache/pip/log/debug.log
 env:
   global:
   - secure: tXXAXMcsuLzCHZuIKv22Fi61cxMVGkUY13AYPgJelXRw5XGiV1Lf+yfRSR3BHk9YBF+vRWb3P7rY/TObpr+RE7cwq1oalwkobroe1XrAEYhE1AVPqDhvSDxVZ5+ytpuvhTowaAafJVmAyTU1Mh4m3Nk0MJhy5MUH75zM3UjHrZxbVUoAVtYRweKpux77NyfLWjhijXEWs8Dcd26gYJbqvP5bKTTtxameR1k9DfhNjgWp/hDaPHfkCVbzA/ONqgonknTd8cG7SKA3G2Jn8XMYDHD7e09prLTKvgYEps1nItMNe81e21e8LKFAmpt9ja3dJ7/EhoPmeVD2LDTSNoU+QdIW0dQLFGIJKgdQXt3+RCbYCVz+eNrt7ZdwGTdkEQMiIemr4ydaaL0RRef0tavToBSsKGv+Td/xin1hH9OJnwrtuuNjuWJuGXV8byn/WTAQ0tiVWzUTepoHAH3JKktfAc9ysqNPuWy8Tdx23ItP/xWeBjXfTGdlsF22e06jUiTs0+OXoHFmUi39ZcW35XzkDnq0dUIda4rwom1Q8cWyA6kG4ECOXZWc3m0d6QKd9JeaTPv36u8QlOtl8Un27FL9k/PD9SP47l9EZg80oFuqK0NGuBZQ9ADR5Uw5Xix5cXHXM/DtlgzEwS2E0l0xuUdLnFhwzr53p1VJhf/8RpkmkIU=
@@ -8,5 +14,6 @@ env:
 install:
 - pip install --upgrade pip
 - pip install -r requirements-build.txt
+- nb setup
 script:
 - nb push

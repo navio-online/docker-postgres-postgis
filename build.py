@@ -11,10 +11,10 @@ Config = {
 }
 
 @task()
-def setup_docker():
+def setup():
   nsh.docker('login', '-u', os.environ.get('DOCKER_HUB_USER'), '-p', os.environ.get('DOCKER_HUB_PASS'))
 
-@task(setup_docker)
+@task()
 def build():
   nsh.docker('build --rm=true -t alpine-postgres-postgis .'.split(' '))
 
