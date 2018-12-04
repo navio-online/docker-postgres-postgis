@@ -22,20 +22,29 @@ def build():
 
 @task(build)
 def push():
-  if os.environ.get('TRAVIS_PULL_REQUEST', 'false') == 'true':
+  if Travis().is_pull_request():
     print("Skipping docker image push for push requests")
     return
 
-  if branch in Config and not Travis().is_tag():
-    nsh.docker.tag(
-        'alpine-postgres-postgis:latest', 
-        'navioonline/alpine-postgres-postgis:{tag}'.format(Config[branch]['docker_tag'])
-      )
+  if branch not in Config:
+    print("Skipping docker image push for unconfigured branch")
+    return
 
-  if not Travis().is_pull_request() and Travis().is_tag():
+  if Travis().is_tag():
     nsh.docker.tag(
         'alpine-postgres-postgis:latest', 
-        'navioonline/alpine-postgres-postgis:{tag}'.format(Travis().tag())
+        'navioonline/alpine-postgres-postgis:{tag}'.format(tag=Travis().tag())
+      )
+    nsh.docker.push(
+        'navioonline/alpine-postgres-postgis:{tag}'.format(tag=Travis().tag())
+      )
+  else:
+    nsh.docker.tag(
+        'alpine-postgres-postgis:latest', 
+        'navioonline/alpine-postgres-postgis:{tag}'.format(tag=Config[branch]['docker_tag'])
+      )
+    nsh.docker.push(
+        'navioonline/alpine-postgres-postgis:{tag}'.format(tag=Config[branch]['docker_tag'])
       )
 
 @task()
