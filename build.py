@@ -45,7 +45,7 @@ def check_uncommited():
 
 @task()
 def update_version(ver=None):
-    with open('navio/meta_travis.py', 'r') as f:
+    with open('meta.py', 'r') as f:
         file_str = f.read()
 
     if not ver:
@@ -62,28 +62,19 @@ def update_version(ver=None):
         r'__version__ = "{}"\n'.format(ver),
         file_str)
 
-    with open('navio/meta_travis.py', 'w') as f:
+    with open('meta.py', 'w') as f:
         f.write(file_str)
 
-    nsh.git('commit', 'navio/meta_travis.py', '-m', 'Version updated to {}'.format(ver))
+    nsh.git('commit', 'meta.py', '-m', 'Version updated to {}'.format(ver))
 
 
 @task()
 def create_tag():
-    with open('navio/meta_travis.py', 'r') as f:
-        file_str = f.read()
-    regexp = re.compile(r'__version__\s*\=\s*\"([\d\w\.\-\_]+)\"\s*')
-    m = regexp.search(file_str)
-    if m:
-        ver = m.group(1)
-    else:
-        raise "Can't find/parse current version in './navio/meta_travis.py'"
-
     nsh.git('tag', '-a', '-m', 'Tagging version {}'.format(ver), ver)
 
 
 @task()
-def push():
+def push_git():
     nsh.git('push', '--verbose')
     nsh.git('push', '--tags', '--verbose')
 
@@ -93,5 +84,4 @@ def release(ver=None):
     check_uncommited()
     update_version(ver)
     create_tag()
-    generate_rst()
-    push()
+    push_git()
