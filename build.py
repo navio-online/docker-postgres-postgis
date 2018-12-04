@@ -13,6 +13,7 @@ Config = {
 
 @task()
 def setup():
+  nsh.env()
   nsh.docker('login', '-u', os.environ.get('DOCKER_HUB_USER'), '-p', os.environ.get('DOCKER_HUB_PASS'))
 
 @task()
