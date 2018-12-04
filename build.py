@@ -70,7 +70,16 @@ def update_version(ver=None):
 
 @task()
 def create_tag():
-  nsh.git('tag', '-a', '-m', 'Tagging version {}'.format(ver), ver)
+    with open('meta.py', 'r') as f:
+        file_str = f.read()
+    regexp = re.compile(r'__version__\s*\=\s*\"([\d\w\.\-\_]+)\"\s*')
+    m = regexp.search(file_str)
+    if m:
+        ver = m.group(1)
+    else:
+        raise "Can't find/parse current version in 'meta.py'"
+
+    nsh.git('tag', '-a', '-m', 'Tagging version {}'.format(ver), ver)
 
 
 @task()
