@@ -1,6 +1,6 @@
 from navio.builder import task, nsh, sh
 from navio.travis import Travis
-import os
+import os, re
 
 travis = Travis().is_travis()
 branch = Travis().branch()
@@ -46,42 +46,42 @@ def check_uncommited():
 @task()
 def update_version(ver=None):
     with open('meta.py', 'r') as f:
-        file_str = f.read()
+      file_str = f.read()
 
     if not ver:
-        regexp = re.compile(r'__version__\s*\=\s*\"([\d\w\.\-\_]+)\"\s*')
-        m = regexp.search(file_str)
-        if m:
-            ver = m.group(1)
+      regexp = re.compile(r'__version__\s*\=\s*\"([\d\w\.\-\_]+)\"\s*')
+      m = regexp.search(file_str)
+      if m:
+        ver = m.group(1)
 
     minor_ver = int(ver[ver.rfind('.') + 1:])
     ver = '{}.{}'.format(ver[:ver.rfind('.')], minor_ver + 1)
 
     file_str = re.sub(
-        r'__version__\s*\=\s*\"([\d\w\.\-\_]+)\"\s*',
-        r'__version__ = "{}"\n'.format(ver),
-        file_str)
+      r'__version__\s*\=\s*\"([\d\w\.\-\_]+)\"\s*',
+      r'__version__ = "{}"\n'.format(ver),
+      file_str)
 
     with open('meta.py', 'w') as f:
-        f.write(file_str)
+      f.write(file_str)
 
     nsh.git('commit', 'meta.py', '-m', 'Version updated to {}'.format(ver))
 
 
 @task()
 def create_tag():
-    nsh.git('tag', '-a', '-m', 'Tagging version {}'.format(ver), ver)
+  nsh.git('tag', '-a', '-m', 'Tagging version {}'.format(ver), ver)
 
 
 @task()
 def push_git():
-    nsh.git('push', '--verbose')
-    nsh.git('push', '--tags', '--verbose')
+  nsh.git('push', '--verbose')
+  nsh.git('push', '--tags', '--verbose')
 
 
 @task()
 def release(ver=None):
-    check_uncommited()
-    update_version(ver)
-    create_tag()
-    push_git()
+  check_uncommited()
+  update_version(ver)
+  create_tag()
+  push_git()
