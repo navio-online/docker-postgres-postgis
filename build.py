@@ -26,11 +26,12 @@ def push():
     print("Skipping docker image push for push requests")
     return
 
-  if branch not in Config:
+  if branch not in Config and not Travis().is_tag():
     print("Skipping docker image push for unconfigured branch")
     return
 
   if Travis().is_tag():
+    print('Pushing navioonline/alpine-postgres-postgis:{tag}'.format(tag=Travis().tag()))
     nsh.docker.tag(
         'alpine-postgres-postgis:latest', 
         'navioonline/alpine-postgres-postgis:{tag}'.format(tag=Travis().tag())
@@ -39,6 +40,7 @@ def push():
         'navioonline/alpine-postgres-postgis:{tag}'.format(tag=Travis().tag())
       )
   else:
+    print('Pushing navioonline/alpine-postgres-postgis:{tag}'.format(tag=Config[branch]['docker_tag']))
     nsh.docker.tag(
         'alpine-postgres-postgis:latest', 
         'navioonline/alpine-postgres-postgis:{tag}'.format(tag=Config[branch]['docker_tag'])
