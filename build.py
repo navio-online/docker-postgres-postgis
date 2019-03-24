@@ -7,7 +7,7 @@ branch = Travis().branch()
 
 Config = {
   'master': {
-    'docker_tag': 'latest',
+    'docker_tag': '11.2',
   },
 }
 
